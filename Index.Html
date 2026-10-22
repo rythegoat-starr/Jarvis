@@ -1,626 +1,347 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#050b14">
-<title>J.A.R.V.I.S. — Personal AI</title>
+<title>JARVIS | Personal AI</title>
 <style>
-:root{
-  --bg:#050b14;--panel:#0a1523;--panel2:#0d1d2e;
-  --cyan:#50eaff;--blue:#399aff;--text:#eafaff;
-  --muted:#7996aa;--line:rgba(80,234,255,.17);
-  --glow:0 0 25px rgba(40,206,255,.12);
-}
+:root{color-scheme:dark;--bg:#050b14;--panel:#0b1928;--line:#1b4055;--cyan:#55eaff;--muted:#8aa5b7;--white:#eafaff}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial,sans-serif;min-height:100vh;overflow-x:hidden}
-button,input,textarea{font:inherit}
-button{cursor:pointer;color:inherit}
-button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:radial-gradient(ellipse at 50% 15%,#10283b 0%,transparent 50%),linear-gradient(rgba(56,156,210,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(56,156,210,.025) 1px,transparent 1px);background-size:auto,32px 32px,32px 32px}
-button:active{transform:scale(.97)}
-.app{max-width:600px;min-height:100dvh;margin:auto;padding:0 17px 105px}
-.topbar{height:67px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:center;gap:10px}
-.brand-icon{height:37px;width:37px;border:1px solid var(--cyan);border-radius:12px;display:grid;place-items:center;color:var(--cyan);font-size:20px;box-shadow:0 0 16px #1b7a9640}
-.brand-name{font-size:15px;font-weight:800;letter-spacing:3px}
-.brand-sub{font-size:9px;letter-spacing:2px;color:var(--muted);margin-top:3px}
-.status{display:flex;align-items:center;gap:7px;color:#8cefd4;font-size:10px;letter-spacing:1px}
-.dot{width:7px;height:7px;background:#62f5c6;border-radius:50%;box-shadow:0 0 9px #62f5c6}
-.top-actions{display:flex;gap:8px}
-.icon-btn{border:1px solid var(--line);background:#0b1928;border-radius:11px;width:37px;height:37px;display:grid;place-items:center;color:var(--cyan);font-size:17px}
-.hero{text-align:center;padding:23px 0 9px}
-.eyebrow{font-size:10px;letter-spacing:3px;color:var(--cyan);font-weight:700}
-.hero h1{font-size:27px;letter-spacing:5px;margin:9px 0 6px;font-weight:500}
-.hero p{font-size:12px;color:var(--muted);margin:0}
-.core-wrap{position:relative;width:246px;height:246px;margin:6px auto 5px;display:grid;place-items:center}
-.core-wrap:before,.core-wrap:after{content:"";position:absolute;border:1px solid rgba(80,234,255,.2);border-radius:50%;inset:13px;animation:rotate 24s linear infinite}
-.core-wrap:after{inset:27px;border-style:dashed;border-color:rgba(80,234,255,.3);animation:rotate 36s linear infinite reverse}
-.ring{position:absolute;border:1px solid rgba(55,169,255,.35);border-radius:50%;inset:1px;box-shadow:inset 0 0 22px #159bc411,0 0 18px #159bc411}
-.ring2{position:absolute;inset:43px;border:1px solid rgba(80,234,255,.25);border-radius:50%;box-shadow:0 0 24px #1cbbef13}
-.core-button{position:relative;width:135px;height:135px;border-radius:50%;border:1px solid #51eaff9c;background:radial-gradient(circle at 50% 45%,#174b69 0%,#0b233b 48%,#07111f 75%);display:grid;place-items:center;box-shadow:0 0 22px #26cfff2b,inset 0 0 22px #27c8ff26;overflow:hidden}
-.core-button:before{content:"";position:absolute;width:190%;height:50%;top:-60%;left:-45%;transform:rotate(-30deg);background:linear-gradient(transparent,#7df6ff2c,transparent);animation:sweep 4s linear infinite}
-.core-symbol{font-size:47px;color:var(--cyan);text-shadow:0 0 24px #45eaff;position:relative}
-.core-label{position:absolute;bottom:35px;font-size:8px;letter-spacing:2px;color:#83dfff}
-.core-wrap.listening .core-button{box-shadow:0 0 40px #50eaff7c,inset 0 0 30px #50eaff40}
-.core-wrap.listening .ring{animation:pulse 1.1s ease-in-out infinite}
-@keyframes rotate{to{transform:rotate(360deg)}}
-@keyframes sweep{0%{top:-60%}100%{top:150%}}
-@keyframes pulse{50%{opacity:.35;transform:scale(1.04)}}
-@keyframes blink{50%{opacity:.35}}
-.core-status{display:flex;justify-content:center;align-items:center;gap:7px;font-size:10px;color:var(--cyan);letter-spacing:2px;margin:0 0 15px}
-.core-status .dot{background:var(--cyan);box-shadow:0 0 9px var(--cyan)}
-.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 19px}
-.stat{border:1px solid var(--line);background:linear-gradient(140deg,#0c1c2b,#08121e);border-radius:12px;padding:12px 8px;text-align:center}
-.stat-value{font-size:14px;color:var(--cyan);font-weight:700}
-.stat-label{font-size:9px;letter-spacing:1px;color:var(--muted);margin-top:5px}
-.section-head{display:flex;align-items:center;justify-content:space-between;margin:19px 0 11px}
-.section-title{font-size:11px;letter-spacing:2px;font-weight:700}
-.section-extra{font-size:9px;color:var(--muted);letter-spacing:1px}
-.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-.tool{min-height:83px;border:1px solid var(--line);border-radius:13px;background:linear-gradient(145deg,#0d1d2d,#09131f);padding:12px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;transition:border-color .2s,background .2s}
-.tool:hover{border-color:#50eaff80;background:#10283a}
-.tool-icon{font-size:22px;color:var(--cyan);height:26px}
-.tool-name{font-size:10px;color:#c5dce9}
-.panel{border:1px solid var(--line);background:linear-gradient(150deg,#0b1927,#07111c);border-radius:16px;padding:14px;box-shadow:var(--glow);margin-top:15px}
-.chat-panel{padding:0;overflow:hidden}
-.chat-head{padding:13px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
-.chat-head strong{font-size:11px;letter-spacing:1.5px}
-.chat-head span{font-size:9px;color:var(--muted)}
-.messages{height:220px;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
-.welcome{text-align:center;margin:auto;color:var(--muted);font-size:12px;line-height:1.7;padding:10px}
-.welcome .welcome-icon{font-size:27px;color:var(--cyan);margin-bottom:8px}
-.msg{max-width:91%;padding:10px 12px;border-radius:12px;font-size:12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
-.msg.user{align-self:flex-end;background:#10354b;border:1px solid #24647e;border-bottom-right-radius:3px}
-.msg.ai{align-self:flex-start;background:#101e2c;border:1px solid #1a384c;border-bottom-left-radius:3px}
-.msg-label{font-size:8px;color:var(--cyan);letter-spacing:1px;margin-bottom:4px}
-.typing{color:var(--cyan);animation:blink 1s infinite}
-.chat-compose{border-top:1px solid var(--line);padding:10px;display:flex;align-items:flex-end;gap:7px;background:#08131f}
-.chat-compose textarea{min-width:0;flex:1;resize:none;max-height:100px;min-height:42px;background:#0c1c2b;border:1px solid #1a3b50;border-radius:12px;color:var(--text);padding:12px;font-size:12px;outline:none}
-.chat-compose textarea::placeholder{color:#688397}
-.send-btn{height:42px;width:43px;border:1px solid #3bcfe9;border-radius:12px;background:#103247;color:var(--cyan);font-size:18px}
-.mic-btn{height:42px;width:40px;border:1px solid var(--line);border-radius:12px;background:#0b1b29;color:var(--cyan);font-size:17px}
-.mic-btn.active{background:#143d4c;box-shadow:0 0 15px #50eaff4d}
-.note-area,.calc-display{width:100%;background:#091521;border:1px solid var(--line);border-radius:11px;color:var(--text);padding:12px;outline:none}
-.note-area{min-height:110px;resize:vertical;font-size:13px}
-.small-btn{border:1px solid var(--line);border-radius:9px;background:#102235;color:var(--cyan);padding:9px 12px;font-size:11px}
-.button-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.calc-display{text-align:right;font-size:25px;margin-bottom:10px;min-height:55px}
-.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-.calc-key{height:45px;border:1px solid var(--line);border-radius:10px;background:#102031;font-size:16px}
-.calc-key.op{color:var(--cyan);background:#10283a}
-.calc-key.equals{background:#16485a;border-color:#50eaff}
-.scanner-view{width:100%;aspect-ratio:4/3;background:#030910;border:1px solid var(--line);border-radius:12px;overflow:hidden;position:relative;display:grid;place-items:center}
-.scanner-view video{width:100%;height:100%;object-fit:cover}
-.scanner-overlay{position:absolute;inset:12%;border:1px solid #50eaff85;border-radius:45%;pointer-events:none;box-shadow:0 0 20px #50eaff16}
-.scanner-overlay:after{content:"";position:absolute;left:0;right:0;height:2px;background:#50eaff;box-shadow:0 0 12px #50eaff;top:10%;animation:scan 2.8s ease-in-out infinite alternate}
-@keyframes scan{to{top:90%}}
-.scanner-placeholder{font-size:11px;color:var(--muted);text-align:center;padding:20px}
-.clock{font-size:38px;letter-spacing:3px;text-align:center;color:var(--cyan);font-weight:300;padding:13px 0 4px}
-.clock-date{text-align:center;color:var(--muted);font-size:11px}
-.notice{font-size:10px;color:var(--muted);line-height:1.6;margin-top:10px}
-.bottom-nav{position:fixed;z-index:10;bottom:0;left:0;right:0;padding:9px 10px max(10px,env(safe-area-inset-bottom));background:rgba(5,11,20,.93);backdrop-filter:blur(18px);border-top:1px solid var(--line)}
-.nav-inner{max-width:550px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
-.nav-btn{background:transparent;border:0;display:flex;flex-direction:column;align-items:center;gap:5px;color:#718da2;font-size:9px;padding:5px 2px}
-.nav-btn .nav-icon{font-size:19px}
-.nav-btn.active{color:var(--cyan)}
-.nav-btn.active .nav-icon{text-shadow:0 0 13px #50eaff}
-.page{display:none}
-.page.active{display:block}
-.toast{position:fixed;z-index:30;left:50%;bottom:94px;transform:translateX(-50%);max-width:90%;background:#10283a;border:1px solid #50eaff70;color:#e8fbff;border-radius:12px;padding:11px 16px;font-size:12px;box-shadow:0 8px 35px #0009;display:none}
-footer{text-align:center;color:#466477;font-size:9px;letter-spacing:1.5px;padding:22px 0 10px}
-@media(min-width:520px){.app{padding-left:24px;padding-right:24px}.core-wrap{width:270px;height:270px}.core-button{width:145px;height:145px}.messages{height:280px}}
+body{margin:0;background:radial-gradient(ellipse at 50% 8%,#123047 0,transparent 44%),var(--bg);color:var(--white);font:14px system-ui,Arial,sans-serif;min-height:100dvh}
+button,input,textarea{font:inherit}button{cursor:pointer;color:inherit}button:disabled{opacity:.5;cursor:wait}
+.app{max-width:620px;margin:auto;padding:0 15px 105px}
+header{height:65px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.brand{display:flex;gap:10px;align-items:center}.logo{width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--cyan);border-radius:12px;color:var(--cyan);font-size:23px;box-shadow:0 0 20px #55eaff22}
+.brand strong{letter-spacing:3px}.sub{font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:3px}
+.status{font-size:10px;color:var(--cyan);letter-spacing:1px}.led{display:inline-block;width:7px;height:7px;border-radius:50%;background:#62f5c6;margin-right:6px}
+.hero{text-align:center;padding:22px 0 0}.eyebrow{font-size:10px;letter-spacing:2px;color:var(--cyan)}
+h1{font-size:23px;font-weight:500;letter-spacing:4px;margin:8px 0}.muted{color:var(--muted);font-size:12px}
+.core{height:225px;width:225px;margin:4px auto 0;position:relative;display:grid;place-items:center}
+.ring{position:absolute;inset:7px;border:1px solid #55eaff55;border-radius:50%;animation:spin 22s linear infinite}
+.ring:before,.ring:after{content:"";position:absolute;inset:13px;border:1px dashed #55eaff65;border-radius:50%}
+.ring:after{inset:31px;border-style:solid;border-color:#3687bb66}
+.ring.two{inset:0;border-color:#399aff55;transform:rotate(30deg);animation-duration:30s;animation-direction:reverse}
+.orb{height:125px;width:125px;border-radius:50%;border:1px solid var(--cyan);background:radial-gradient(circle at 45% 35%,#1c5975,#0a2035 60%,#050b14);box-shadow:0 0 28px #55eaff38,inset 0 0 25px #55eaff20;display:grid;place-items:center;color:var(--cyan);font-size:49px;text-shadow:0 0 22px var(--cyan)}
+.core.listening .orb{box-shadow:0 0 45px #55eaffaa,inset 0 0 35px #55eaff66;animation:pulse 1s infinite}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{transform:scale(1.06)}}
+.core-status{color:var(--cyan);letter-spacing:2px;font-size:10px;text-align:center;margin:0 0 17px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:21px}
+.stat,.card{background:linear-gradient(145deg,#0d1e2d,#08131f);border:1px solid var(--line);border-radius:13px}
+.stat{text-align:center;padding:12px 4px}.stat strong{color:var(--cyan);font-size:13px;display:block}.stat span{font-size:9px;color:var(--muted);letter-spacing:1px;display:block;margin-top:5px}
+.section{display:flex;justify-content:space-between;align-items:center;margin:19px 0 11px;font-size:11px;letter-spacing:2px;font-weight:700}
+.tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tool{min-height:78px;background:var(--panel);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;font-size:10px}
+.tool span:first-child{font-size:22px;color:var(--cyan)}
+.tool:active,.btn:active{transform:scale(.98)}
+.card{padding:13px;margin-top:14px}
+.chat-head{display:flex;justify-content:space-between;align-items:center;padding:1px 0 12px;border-bottom:1px solid var(--line);font-size:10px;letter-spacing:1px}
+.chat-head span{color:var(--muted);font-size:9px}
+.messages{height:235px;overflow:auto;display:flex;flex-direction:column;gap:11px;padding:13px 0;scroll-behavior:smooth}
+.welcome{margin:auto;text-align:center;color:var(--muted);font-size:12px;line-height:1.8}.welcome b{font-size:25px;color:var(--cyan)}
+.msg{max-width:92%;border:1px solid var(--line);background:#0c1c2a;padding:10px 12px;border-radius:12px;font-size:12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.user{align-self:flex-end;background:#103247;border-color:#24546a}
+.msg.ai{align-self:flex-start}.tag{display:block;color:var(--cyan);font-size:9px;letter-spacing:1px;margin-bottom:4px}
+.compose{display:flex;gap:7px;align-items:flex-end;border-top:1px solid var(--line);padding-top:11px}
+.compose textarea{min-width:0;flex:1;min-height:42px;max-height:110px;resize:none;border:1px solid var(--line);background:#07121e;color:var(--white);border-radius:11px;padding:12px;font-size:12px;outline:none}
+.btn{border:1px solid #286079;background:#103044;color:var(--cyan);border-radius:11px;min-height:42px;padding:0 13px}
+.iconbtn{width:42px;padding:0;font-size:17px}
+.page{display:none}.page.active{display:block}
+.page-title{font-size:12px;letter-spacing:2px;margin:22px 0 13px}
+.bottom{position:fixed;z-index:5;bottom:0;left:0;right:0;background:#050b14ed;backdrop-filter:blur(15px);border-top:1px solid var(--line);padding:8px 8px max(9px,env(safe-area-inset-bottom))}
+.nav{max-width:560px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:3px}
+.nav button{border:0;background:transparent;color:#7791a4;font-size:9px;padding:5px 0;display:grid;justify-items:center;gap:5px}
+.nav button b{font-size:19px;font-weight:400}.nav button.active{color:var(--cyan)}
+textarea.note{width:100%;min-height:150px;background:#07121e;border:1px solid var(--line);border-radius:11px;padding:12px;color:var(--white);resize:vertical}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.clock{font-size:36px;text-align:center;letter-spacing:3px;color:var(--cyan);padding:20px 0 6px}
+.center{text-align:center}
+.calc-display{width:100%;background:#07121e;border:1px solid var(--line);border-radius:10px;color:var(--cyan);text-align:right;padding:13px;font-size:25px;margin-bottom:9px}
+.calc{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.calc button{height:45px;border:1px solid var(--line);border-radius:9px;background:#102033}.calc .op{color:var(--cyan)}.calc .eq{background:#164357}
+.camera{width:100%;aspect-ratio:4/3;background:#02070c;border:1px solid var(--line);border-radius:12px;overflow:hidden;display:grid;place-items:center;position:relative}
+.camera video{width:100%;height:100%;object-fit:cover}.frame{position:absolute;inset:13%;border:1px solid var(--cyan);border-radius:45%;pointer-events:none}
+.note-small{font-size:11px;color:var(--muted);line-height:1.65;margin-top:10px;overflow-wrap:anywhere}
+.toast{position:fixed;display:none;z-index:20;left:50%;bottom:95px;transform:translateX(-50%);width:max-content;max-width:90%;background:#10283a;border:1px solid var(--line);border-radius:10px;padding:11px 14px;font-size:12px}
+@media(min-width:520px){.core{width:250px;height:250px}.orb{width:140px;height:140px}.messages{height:280px}}
 </style>
 </head>
 <body>
 <div class="app">
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-icon">⌘</div>
-      <div><div class="brand-name">J.A.R.V.I.S.</div><div class="brand-sub">PERSONAL AI SYSTEM</div></div>
+<header>
+  <div class="brand"><div class="logo">✳</div><div><strong>J.A.R.V.I.S.</strong><div class="sub">PERSONAL AI SYSTEM</div></div></div>
+  <div class="status"><span class="led"></span><span id="topStatus">STANDBY</span></div>
+</header>
+
+<main>
+<section class="page active" id="home">
+  <div class="hero"><div class="eyebrow">PERSONAL ASSISTANT</div><h1>AT YOUR SERVICE</h1><div class="muted">Your command center. Your AI.</div></div>
+  <div class="core" id="core"><div class="ring"></div><div class="ring two"></div><button class="orb" id="orb" aria-label="Start voice input">✳</button></div>
+  <div class="core-status" id="coreStatus">◆ SYSTEM STANDBY ◆</div>
+  <div class="stats">
+    <div class="stat"><strong id="miniTime">--:--</strong><span>LOCAL TIME</span></div>
+    <div class="stat"><strong id="aiState">READY</strong><span>AI CONNECTION</span></div>
+    <div class="stat"><strong id="voiceState">READY</strong><span>VOICE INPUT</span></div>
+  </div>
+  <div class="section">QUICK ACCESS <span class="muted">MODULES</span></div>
+  <div class="tools">
+    <button class="tool" data-go="assistant"><span>◉</span>AI ASSISTANT</button>
+    <button class="tool" data-go="scanner"><span>⌾</span>CAMERA SCANNER</button>
+    <button class="tool" data-go="calculator"><span>⊞</span>CALCULATOR</button>
+    <button class="tool" data-go="notes"><span>▤</span>QUICK NOTES</button>
+    <button class="tool" data-go="clock"><span>◷</span>CLOCK</button>
+    <button class="tool" id="testAI"><span>⌁</span>TEST GROQ AI</button>
+  </div>
+  <div class="section" id="chatSection">JARVIS TERMINAL <span class="muted">AI CHANNEL</span></div>
+  <div class="card">
+    <div class="chat-head"><strong>J.A.R.V.I.S.</strong><span id="chatStatus">AWAITING INPUT</span></div>
+    <div class="messages" id="messages"><div class="welcome"><b>✳</b><br>All systems standing by.<br>What can I help you with?</div></div>
+    <div class="compose">
+      <textarea id="prompt" rows="1" aria-label="Message JARVIS" placeholder="Ask JARVIS anything..."></textarea>
+      <button class="btn iconbtn" id="mic" aria-label="Voice input">🎙</button>
+      <button class="btn iconbtn" id="send" aria-label="Send message">➤</button>
     </div>
-    <div class="top-actions">
-      <button class="icon-btn" id="soundToggle" aria-label="Toggle spoken responses" title="Toggle voice responses">♫</button>
-      <button class="icon-btn" id="settingsBtn" aria-label="Settings">⚙</button>
+  </div>
+  <p class="note-small">AI requests use your Supabase Edge Function. Never put your Groq API key in this page.</p>
+</section>
+
+<section class="page" id="assistant">
+  <div class="page-title">AI ASSISTANT / CONVERSATION</div>
+  <div class="card"><p class="note-small">Your conversation is available on the Home screen. Use the message bar there to chat with JARVIS.</p><button class="btn" data-go="home">Return to JARVIS</button><button class="btn" id="clearChat">Clear chat</button><button class="btn" id="stopVoice">Stop voice</button></div>
+  <div class="card"><div class="section">BACKEND DIAGNOSTICS</div><p id="backendDetails" class="note-small">Backend has not been tested yet.</p><button class="btn" id="testAI2">Test AI connection</button></div>
+</section>
+
+<section class="page" id="scanner">
+  <div class="page-title">OPTICAL SCANNER</div>
+  <div class="card">
+    <div class="camera" id="camera"><div id="cameraPlaceholder" class="muted center">CAMERA OFFLINE<br><br>Activate camera to begin.</div></div>
+    <div class="btnrow"><button class="btn" id="cameraOn">Activate camera</button><button class="btn" id="cameraOff">Stop camera</button></div>
+    <p class="note-small" id="scanStatus">Camera has not been activated.</p>
+    <p class="note-small">This feature provides a local camera preview only. It does not identify people or perform health analysis. Video frames are not sent to Groq by this page. Camera access requires permission and HTTPS.</p>
+  </div>
+</section>
+
+<section class="page" id="calculator">
+  <div class="page-title">CALCULATION MODULE</div>
+  <div class="card"><input id="calcDisplay" class="calc-display" value="0" readonly aria-label="Calculator result">
+    <div class="calc" id="calc">
+      <button class="op" data-k="AC">AC</button><button class="op" data-k="(">(</button><button class="op" data-k=")">)</button><button class="op" data-k="/">÷</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button class="op" data-k="*">×</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="op" data-k="-">−</button>
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button class="op" data-k="+">+</button>
+      <button data-k="0">0</button><button data-k=".">.</button><button class="op" data-k="DEL">⌫</button><button class="eq" data-k="=">=</button>
     </div>
-  </header>
+  </div>
+</section>
 
-  <main>
-    <section class="page active" id="page-home">
-      <div class="hero">
-        <div class="eyebrow">PERSONAL ASSISTANT • ONLINE INTERFACE</div>
-        <h1>AT YOUR SERVICE</h1>
-        <p>Your command center. Your AI. Your world.</p>
-      </div>
+<section class="page" id="notes">
+  <div class="page-title">PERSONAL NOTES</div>
+  <div class="card"><textarea id="noteText" class="note" placeholder="Write a reminder or idea..."></textarea><div class="btnrow"><button class="btn" id="saveNote">Save notes</button><button class="btn" id="deleteNote">Clear notes</button></div><p id="noteStatus" class="note-small">Notes stay in this browser on this device.</p></div>
+</section>
 
-      <div class="core-wrap" id="coreWrap">
-        <div class="ring"></div><div class="ring2"></div>
-        <button class="core-button" id="coreButton" aria-label="Activate voice assistant">
-          <span class="core-symbol">✳</span>
-        </button>
-        <div class="core-label">NEURAL CORE</div>
-      </div>
-      <div class="core-status"><span class="dot"></span><span id="coreStatus">SYSTEM STANDBY</span></div>
+<section class="page" id="clock">
+  <div class="page-title">CHRONOMETRIC SYSTEM</div>
+  <div class="card"><div class="clock" id="bigTime">--:--:--</div><div class="center muted" id="bigDate"></div><p class="note-small" id="deviceInfo"></p></div>
+</section>
 
-      <div class="mini-stats">
-        <div class="stat"><div class="stat-value" id="clockMini">--:--</div><div class="stat-label">LOCAL TIME</div></div>
-        <div class="stat"><div class="stat-value" id="backendMini">READY</div><div class="stat-label">AI BACKEND</div></div>
-        <div class="stat"><div class="stat-value" id="voiceMini">STANDBY</div><div class="stat-label">VOICE SYSTEM</div></div>
-      </div>
-
-      <div class="section-head"><div class="section-title">QUICK ACCESS</div><div class="section-extra">SYSTEM MODULES</div></div>
-      <div class="quick-grid">
-        <button class="tool" data-page="chat"><span class="tool-icon">◉</span><span class="tool-name">AI Assistant</span></button>
-        <button class="tool" data-page="scanner"><span class="tool-icon">⌾</span><span class="tool-name">Face Scanner</span></button>
-        <button class="tool" data-page="calculator"><span class="tool-icon">⊞</span><span class="tool-name">Calculator</span></button>
-        <button class="tool" data-page="notes"><span class="tool-icon">▤</span><span class="tool-name">Quick Notes</span></button>
-        <button class="tool" data-page="clock"><span class="tool-icon">◷</span><span class="tool-name">Clock</span></button>
-        <button class="tool" id="testBackend"><span class="tool-icon">⌁</span><span class="tool-name">Test Groq AI</span></button>
-      </div>
-
-      <div class="section-head"><div class="section-title">AI TERMINAL</div><div class="section-extra">GROQ • SUPABASE</div></div>
-      <div class="panel chat-panel">
-        <div class="chat-head"><strong>JARVIS CONVERSATION</strong><span id="chatStatus">AWAITING INPUT</span></div>
-        <div class="messages" id="homeMessages">
-          <div class="welcome"><div class="welcome-icon">✳</div>Good to see you.<br>Tap the core to speak or send me a message below.</div>
-        </div>
-        <div class="chat-compose">
-          <textarea id="homeInput" rows="1" placeholder="Ask JARVIS anything..." aria-label="Message JARVIS"></textarea>
-          <button class="mic-btn" id="homeMic" aria-label="Speak" title="Voice input">🎙</button>
-          <button class="send-btn" id="homeSend" aria-label="Send message">➤</button>
-        </div>
-      </div>
-      <footer>J.A.R.V.I.S. PERSONAL SYSTEM • MOBILE HUD</footer>
-    </section>
-
-    <section class="page" id="page-chat">
-      <div class="section-head"><div class="section-title">AI ASSISTANT</div><div class="section-extra">GROQ POWERED</div></div>
-      <div class="panel chat-panel">
-        <div class="chat-head"><strong>SECURE AI CHANNEL</strong><span id="chatStatus2">STANDBY</span></div>
-        <div class="messages" id="fullMessages" style="height:53vh;min-height:300px">
-          <div class="welcome"><div class="welcome-icon">✳</div>JARVIS is ready.<br>Send a message to begin.</div>
-        </div>
-        <div class="chat-compose">
-          <textarea id="fullInput" rows="1" placeholder="Enter your command..." aria-label="Message JARVIS"></textarea>
-          <button class="mic-btn" id="fullMic" aria-label="Speak">🎙</button>
-          <button class="send-btn" id="fullSend" aria-label="Send message">➤</button>
-        </div>
-      </div>
-      <div class="notice">Your messages are sent to your configured Supabase Edge Function, which calls Groq. Avoid sending passwords or other sensitive information.</div>
-      <div class="button-row"><button class="small-btn" id="clearChat">Clear conversation</button><button class="small-btn" id="stopSpeech">Stop speaking</button></div>
-    </section>
-
-    <section class="page" id="page-scanner">
-      <div class="section-head"><div class="section-title">OPTICAL SCANNER</div><div class="section-extra">LOCAL CAMERA</div></div>
-      <div class="panel">
-        <div class="scanner-view" id="scannerView"><div class="scanner-placeholder" id="scannerPlaceholder">CAMERA OFFLINE<br><br>Activate the camera to begin a local visual scan.</div></div>
-        <div class="button-row"><button class="small-btn" id="startCamera">Activate camera</button><button class="small-btn" id="stopCamera">Stop camera</button><button class="small-btn" id="scanButton">Run scan animation</button></div>
-        <p class="notice">Privacy: the camera preview is processed in this browser and is not sent to Groq by this page. This is a visual scanning effect, not biometric identification or a medical assessment. Camera access generally requires HTTPS.</p>
-        <div class="panel" style="margin-top:13px">
-          <div class="section-title">SCAN DIAGNOSTICS</div>
-          <p class="notice" id="scanResult">Scanner awaiting activation.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="page" id="page-calculator">
-      <div class="section-head"><div class="section-title">CALCULATION MODULE</div><div class="section-extra">LOCAL PROCESSING</div></div>
-      <div class="panel">
-        <input class="calc-display" id="calcDisplay" value="0" aria-label="Calculator display" inputmode="none" readonly>
-        <div class="calc-grid" id="calcGrid">
-          <button class="calc-key op" data-key="AC">AC</button><button class="calc-key op" data-key="(">(</button><button class="calc-key op" data-key=")">)</button><button class="calc-key op" data-key="/">÷</button>
-          <button class="calc-key" data-key="7">7</button><button class="calc-key" data-key="8">8</button><button class="calc-key" data-key="9">9</button><button class="calc-key op" data-key="*">×</button>
-          <button class="calc-key" data-key="4">4</button><button class="calc-key" data-key="5">5</button><button class="calc-key" data-key="6">6</button><button class="calc-key op" data-key="-">−</button>
-          <button class="calc-key" data-key="1">1</button><button class="calc-key" data-key="2">2</button><button class="calc-key" data-key="3">3</button><button class="calc-key op" data-key="+">+</button>
-          <button class="calc-key" data-key="0">0</button><button class="calc-key" data-key=".">.</button><button class="calc-key op" data-key="DEL">⌫</button><button class="calc-key equals" data-key="=">=</button>
-        </div>
-        <p class="notice">Basic arithmetic with parentheses. Calculations run locally.</p>
-      </div>
-    </section>
-
-    <section class="page" id="page-notes">
-      <div class="section-head"><div class="section-title">PERSONAL MEMORY</div><div class="section-extra">LOCAL NOTES</div></div>
-      <div class="panel">
-        <label for="notesInput" class="section-title">YOUR NOTES</label>
-        <textarea id="notesInput" class="note-area" placeholder="Write a reminder, idea, or command..."></textarea>
-        <div class="button-row"><button class="small-btn" id="saveNotes">Save notes</button><button class="small-btn" id="clearNotes">Clear notes</button><span id="notesStatus" class="notice"></span></div>
-        <p class="notice">Notes are saved in this browser on this device using local storage. They are not synced to your other devices.</p>
-      </div>
-    </section>
-
-    <section class="page" id="page-clock">
-      <div class="section-head"><div class="section-title">CHRONOMETRIC SYSTEM</div><div class="section-extra">DEVICE TIME</div></div>
-      <div class="panel">
-        <div class="clock" id="bigClock">--:--:--</div>
-        <div class="clock-date" id="bigDate">Synchronizing local time...</div>
-        <div class="section-head"><div class="section-title">SYSTEM INFORMATION</div></div>
-        <div class="notice" id="deviceInfo"></div>
-      </div>
-    </section>
-
-    <section class="page" id="page-settings">
-      <div class="section-head"><div class="section-title">SYSTEM CONFIGURATION</div><div class="section-extra">PREFERENCES</div></div>
-      <div class="panel">
-        <div class="section-title">VOICE OUTPUT</div>
-        <p class="notice">Spoken responses use voices available in your browser and device. Available British voices vary by phone.</p>
-        <div class="button-row"><button class="small-btn" id="voiceToggle">Toggle spoken replies</button><button class="small-btn" id="previewVoice">Test voice</button></div>
-        <div class="section-head"><div class="section-title">GROQ CONNECTION</div></div>
-        <p class="notice">JARVIS connects through your Supabase Edge Function. Your Groq API key must remain in Supabase Secrets, never in this page.</p>
-        <div class="button-row"><button class="small-btn" id="settingsTest">Test backend</button><button class="small-btn" id="settingsChat">Open AI assistant</button></div>
-        <p class="notice" id="backendDetails">Backend status has not been tested in this session.</p>
-        <div class="section-head"><div class="section-title">PRIVACY</div></div>
-        <p class="notice">Chat requests are sent to your backend. Notes stay in local browser storage. Camera use requires your permission.</p>
-      </div>
-    </section>
-  </main>
+<section class="page" id="system">
+  <div class="page-title">SYSTEM CONFIGURATION</div>
+  <div class="card"><div class="section">VOICE OUTPUT</div><p class="note-small">Voice choices depend on the browser and voices installed on your phone.</p><div class="btnrow"><button class="btn" id="toggleVoice">Toggle spoken replies</button><button class="btn" id="previewVoice">Test voice</button></div>
+  <div class="section">GROQ / SUPABASE</div><p class="note-small">The API key must be stored as a Supabase Edge Function secret, not in this HTML.</p><button class="btn" id="testAI3">Test AI connection</button><p id="systemDetails" class="note-small">Connection not tested yet.</p></div>
+</section>
+</main>
 </div>
 
-<nav class="bottom-nav" aria-label="Main navigation">
-  <div class="nav-inner">
-    <button class="nav-btn active" data-page="home"><span class="nav-icon">⌂</span>Home</button>
-    <button class="nav-btn" data-page="chat"><span class="nav-icon">◉</span>Assistant</button>
-    <button class="nav-btn" data-page="scanner"><span class="nav-icon">⌾</span>Scanner</button>
-    <button class="nav-btn" data-page="notes"><span class="nav-icon">▤</span>Notes</button>
-    <button class="nav-btn" data-page="settings"><span class="nav-icon">⚙</span>System</button>
-  </div>
-</nav>
+<nav class="bottom"><div class="nav">
+<button class="active" data-go="home"><b>⌂</b>HOME</button>
+<button data-go="assistant"><b>◉</b>AI</button>
+<button data-go="scanner"><b>⌾</b>SCAN</button>
+<button data-go="notes"><b>▤</b>NOTES</button>
+<button data-go="system"><b>⚙</b>SYSTEM</button>
+</div></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-(() => {
 "use strict";
+(()=>{
+const BACKEND_URL="https://anziupknmgmvvgylyivq.supabase.co/functions/v1/smart-task";
+const $=id=>document.getElementById(id);
+const state={busy:false,voice:true,history:[],recognition:null,stream:null,calc:"",lastPage:"home"};
 
-/* Keep the API key in Supabase Secrets. Never put it in this file. */
-const BACKEND_URL = "https://anziupknmgmvvgylyivq.supabase.co/functions/v1/smart-task";
+function toast(s){const t=$("toast");t.textContent=s;t.style.display="block";clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.style.display="none",3200)}
+function go(id){
+ if(id==="assistant") $("chatSection").scrollIntoView({behavior:"smooth",block:"start"});
+ else{
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===id));
+  document.querySelectorAll("[data-go]").forEach(b=>b.classList.toggle("active",b.dataset.go===id));
+  state.lastPage=id;window.scrollTo({top:0,behavior:"smooth"});
+ }
+ if(id==="clock")tick();
+}
+document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
+$("orb").addEventListener("click",listen);
 
-const $ = id => document.getElementById(id);
-const state = {
-  busy:false, speaking:true, listening:false, recognition:null,
-  camera:null, lastPage:"home", conversation:[],
-  backend:"Not tested"
-};
+function tick(){
+ const d=new Date();
+ $("miniTime").textContent=d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+ $("bigTime").textContent=d.toLocaleTimeString("en-GB");
+ $("bigDate").textContent=d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+}
+setInterval(tick,1000);tick();
+$("deviceInfo").textContent="Language: "+navigator.language+" · Time zone: "+Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-function toast(message){
-  const el=$("toast");
-  el.textContent=message;
-  el.style.display="block";
-  clearTimeout(toast.timer);
-  toast.timer=setTimeout(()=>el.style.display="none",3000);
+function append(role,text){
+ const box=$("messages");
+ box.querySelector(".welcome")?.remove();
+ const el=document.createElement("div");el.className="msg "+(role==="user"?"user":"ai");
+ if(role!=="user"){const tag=document.createElement("span");tag.className="tag";tag.textContent="J.A.R.V.I.S.";el.append(tag)}
+ const body=document.createElement("div");body.textContent=text;el.append(body);box.append(el);box.scrollTop=box.scrollHeight;
+ return el;
 }
-
-function setStatus(text){
-  $("coreStatus").textContent=text;
-  $("chatStatus").textContent=text;
-  $("chatStatus2").textContent=text;
-}
-
-function go(page){
-  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id==="page-"+page));
-  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
-  state.lastPage=page;
-  window.scrollTo({top:0,behavior:"smooth"});
-  if(page==="clock") updateClock();
-}
-document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
-$("settingsBtn").addEventListener("click",()=>go("settings"));
-
-function formatTime(){
-  return new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-}
-function updateClock(){
-  const d=new Date();
-  $("clockMini").textContent=d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-  $("bigClock").textContent=formatTime();
-  $("bigDate").textContent=d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
-}
-setInterval(updateClock,1000);updateClock();
-
-$("deviceInfo").textContent=
-  "Language: "+(navigator.language||"Unknown")+
-  "\nPlatform: "+(navigator.userAgentData?.platform||navigator.platform||"Browser")+
-  "\nLocal time zone: "+(Intl.DateTimeFormat().resolvedOptions().timeZone||"Unknown")+
-  "\nSpeech input: "+(("SpeechRecognition" in window||"webkitSpeechRecognition" in window)?"Available":"Not detected");
-
-function makeMessage(container,role,text){
-  const welcome=container.querySelector(".welcome");
-  if(welcome)welcome.remove();
-  const msg=document.createElement("div");
-  msg.className="msg "+(role==="user"?"user":"ai");
-  if(role!=="user"){
-    const label=document.createElement("div");
-    label.className="msg-label";label.textContent="J.A.R.V.I.S.";
-    msg.appendChild(label);
-  }
-  const body=document.createElement("div");
-  body.textContent=text;
-  msg.appendChild(body);
-  container.appendChild(msg);
-  container.scrollTop=container.scrollHeight;
-  return msg;
-}
-function addBoth(role,text){
-  makeMessage($("homeMessages"),role,text);
-  makeMessage($("fullMessages"),role,text);
-}
-function clearWelcome(container){
-  container.innerHTML='<div class="welcome"><div class="welcome-icon">✳</div>JARVIS is ready.<br>Send a message to begin.</div>';
-}
-function setBusy(busy){
-  state.busy=busy;
-  $("homeSend").disabled=busy;
-  $("fullSend").disabled=busy;
-  $("chatStatus").textContent=busy?"PROCESSING...":"READY";
-  $("chatStatus2").textContent=busy?"PROCESSING...":"READY";
-  $("coreStatus").textContent=busy?"PROCESSING REQUEST":"SYSTEM STANDBY";
-}
-
-async function askBackend(messages){
-  const response=await fetch(BACKEND_URL,{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({messages}),
-    signal:AbortSignal.timeout(45000)
-  });
-  const raw=await response.text();
-  let data={};
-  try{data=JSON.parse(raw)}catch{}
-  if(!response.ok){
-    const detail=data.error||data.message||raw.slice(0,240)||("HTTP "+response.status);
-    throw new Error("Backend returned "+response.status+": "+detail);
-  }
-  const reply=data.reply||data.response||data.message||data.choices?.[0]?.message?.content;
-  if(typeof reply!=="string"||!reply.trim()){
-    throw new Error("The backend responded, but no reply text was found. Check the Edge Function response format.");
-  }
-  return reply.trim();
-}
-
-async function sendMessage(inputId){
-  if(state.busy)return;
-  const input=$(inputId);
-  const text=input.value.trim();
-  if(!text)return;
-  input.value="";
-  input.style.height="42px";
-  addBoth("user",text);
-  state.conversation.push({role:"user",content:text});
-  if(state.conversation.length>30)state.conversation=state.conversation.slice(-30);
-  setBusy(true);
-  const loading1=makeMessage($("homeMessages"),"assistant","Connecting to your AI...");
-  loading1.classList.add("typing");
-  const loading2=makeMessage($("fullMessages"),"assistant","Connecting to your AI...");
-  loading2.classList.add("typing");
-  try{
-    const reply=await askBackend(state.conversation);
-    loading1.remove();loading2.remove();
-    state.conversation.push({role:"assistant",content:reply});
-    addBoth("assistant",reply);
-    state.backend="Connected";
-    $("backendMini").textContent="CONNECTED";
-    $("backendDetails").textContent="Last request succeeded. Your Supabase Edge Function returned an AI response.";
-    if(state.speaking)speak(reply);
-  }catch(error){
-    loading1.remove();loading2.remove();
-    const detail=error.name==="TimeoutError"?"The backend took too long to respond. Try again.":error.message;
-    const msg="I couldn't reach the AI service. "+detail+
-      "\n\nCheck that the Supabase Edge Function is deployed, the GROQ_API_KEY secret is configured, and the function accepts { messages: [...] }.";
-    addBoth("assistant",msg);
-    state.backend="Connection error";
-    $("backendMini").textContent="OFFLINE";
-    $("backendDetails").textContent="Connection failed: "+detail;
-    toast("AI connection failed. Check backend settings.");
-  }finally{setBusy(false)}
-}
-$("homeSend").addEventListener("click",()=>sendMessage("homeInput"));
-$("fullSend").addEventListener("click",()=>sendMessage("fullInput"));
-function setupInput(id,send){
-  const el=$(id);
-  el.addEventListener("keydown",e=>{
-    if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}
-  });
-  el.addEventListener("input",()=>{
-    el.style.height="42px";
-    el.style.height=Math.min(el.scrollHeight,100)+"px";
-  });
-}
-setupInput("homeInput",()=>sendMessage("homeInput"));
-setupInput("fullInput",()=>sendMessage("fullInput"));
-
-async function testBackend(){
-  $("backendMini").textContent="TESTING";
-  $("backendDetails").textContent="Sending a small test request to your Supabase Edge Function...";
-  try{
-    const reply=await askBackend([{role:"user",content:"Reply with exactly: JARVIS connection successful."}]);
-    state.backend="Connected";
-    $("backendMini").textContent="CONNECTED";
-    $("backendDetails").textContent="Success. Backend replied: "+reply.slice(0,180);
-    toast("Groq AI backend responded successfully.");
-  }catch(e){
-    state.backend="Connection error";
-    $("backendMini").textContent="OFFLINE";
-    $("backendDetails").textContent="Test failed: "+e.message;
-    toast("Backend test failed. See system details.");
-  }
-}
-$("testBackend").addEventListener("click",testBackend);
-$("settingsTest").addEventListener("click",testBackend);
-
-/* Speech output: chooses a British English voice when the device offers one. */
-function chooseVoice(){
-  if(!("speechSynthesis" in window))return null;
-  const voices=speechSynthesis.getVoices();
-  return voices.find(v=>/en-GB/i.test(v.lang)&&/Daniel|George|Ryan|Arthur/i.test(v.name))
-    ||voices.find(v=>/en-GB/i.test(v.lang))
-    ||voices.find(v=>/^en/i.test(v.lang))
-    ||null;
+function status(s){$("topStatus").textContent=s;$("chatStatus").textContent=s;$("coreStatus").textContent="◆ "+s+" ◆"}
+function showBackend(s){$("backendDetails").textContent=s;$("systemDetails").textContent=s}
+function setBusy(v){
+ state.busy=v;$("send").disabled=v;$("mic").disabled=v;
+ status(v?"PROCESSING":"STANDBY");
+ $("chatStatus").textContent=v?"CONTACTING AI...":"READY";
 }
 function speak(text){
-  if(!("speechSynthesis" in window)){toast("Speech output isn't available in this browser.");return}
-  speechSynthesis.cancel();
-  const utterance=new SpeechSynthesisUtterance(text.slice(0,3500));
-  utterance.lang="en-GB";utterance.rate=.94;utterance.pitch=.86;
-  const voice=chooseVoice();if(voice)utterance.voice=voice;
-  speechSynthesis.speak(utterance);
+ if(!state.voice||!("speechSynthesis"in window))return;
+ speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(text.slice(0,3000));
+ u.lang="en-GB";u.rate=.94;u.pitch=.88;
+ const voices=speechSynthesis.getVoices();
+ u.voice=voices.find(v=>/en-GB/i.test(v.lang)&&/Daniel|George|Ryan|Arthur/i.test(v.name))||voices.find(v=>/en-GB/i.test(v.lang))||null;
+ speechSynthesis.speak(u);
 }
-function setSpeaking(value){
-  state.speaking=value;
-  $("soundToggle").textContent=value?"♫":"♪";
-  $("voiceMini").textContent=value?"ENABLED":"MUTED";
-  toast(value?"Spoken replies enabled":"Spoken replies muted");
+async function requestAI(messages){
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),45000);
+ try{
+  const r=await fetch(BACKEND_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages}),signal:controller.signal});
+  const raw=await r.text();let data;
+  try{data=JSON.parse(raw)}catch{data={message:raw}}
+  if(!r.ok)throw Error("HTTP "+r.status+" — "+String(data.error||data.message||"Backend request failed").slice(0,220));
+  const reply=data.reply||data.response||data.message||data.choices?.[0]?.message?.content;
+  if(typeof reply!=="string"||!reply.trim())throw Error("Backend replied, but no reply text was returned. Check the Edge Function's JSON response.");
+  return reply.trim();
+ }finally{clearTimeout(timeout)}
 }
-$("soundToggle").addEventListener("click",()=>setSpeaking(!state.speaking));
-$("voiceToggle").addEventListener("click",()=>setSpeaking(!state.speaking));
-$("previewVoice").addEventListener("click",()=>speak("JARVIS online. All systems standing by."));
-$("stopSpeech").addEventListener("click",()=>{if("speechSynthesis"in window)speechSynthesis.cancel();toast("Speech stopped")});
-
-/* Speech input */
-function startListening(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){toast("Speech recognition isn't supported here. Try Chrome on Android.");return}
-  if(state.listening){try{state.recognition.stop()}catch{}return}
-  const rec=new SR();
-  state.recognition=rec;rec.lang="en-GB";rec.interimResults=true;rec.continuous=false;
-  let finalText="";
-  state.listening=true;
-  $("coreWrap").classList.add("listening");
-  $("voiceMini").textContent="LISTENING";
-  $("coreStatus").textContent="LISTENING FOR COMMAND";
-  document.querySelectorAll(".mic-btn").forEach(b=>b.classList.add("active"));
-  rec.onresult=e=>{
-    let interim="";
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal)finalText+=e.results[i][0].transcript;
-      else interim+=e.results[i][0].transcript;
-    }
-    $("coreStatus").textContent=finalText||interim||"LISTENING...";
-  };
-  rec.onerror=e=>toast("Voice input: "+(e.error||"not available"));
-  rec.onend=()=>{
-    state.listening=false;
-    $("coreWrap").classList.remove("listening");
-    $("voiceMini").textContent="STANDBY";
-    document.querySelectorAll(".mic-btn").forEach(b=>b.classList.remove("active"));
-    $("coreStatus").textContent="SYSTEM STANDBY";
-    if(finalText.trim()){
-      go("home");$("homeInput").value=finalText.trim();sendMessage("homeInput");
-    }
-  };
-  try{rec.start()}catch{state.listening=false;toast("Couldn't start the microphone. Try again.")}
+async function send(){
+ if(state.busy)return;
+ const text=$("prompt").value.trim();if(!text)return;
+ $("prompt").value="";$("prompt").style.height="42px";
+ append("user",text);state.history.push({role:"user",content:text});
+ if(state.history.length>24)state.history=state.history.slice(-24);
+ setBusy(true);
+ const loading=append("assistant","Connecting to JARVIS AI...");
+ try{
+  const reply=await requestAI(state.history);
+  loading.remove();state.history.push({role:"assistant",content:reply});
+  append("assistant",reply);$("aiState").textContent="ONLINE";
+  showBackend("Last AI request succeeded. Supabase returned a reply. Model/provider are determined by your Edge Function.");
+  speak(reply);
+ }catch(e){
+  loading.remove();
+  const msg=e.name==="AbortError"?"The request timed out after 45 seconds.":e.message;
+  append("assistant","I couldn't connect to the AI service.\n\n"+msg+"\n\nCheck your Supabase Edge Function deployment, GROQ_API_KEY secret, and function response format.");
+  $("aiState").textContent="ERROR";showBackend("Connection failed: "+msg);toast("AI connection failed — see the chat error.");
+ }finally{setBusy(false)}
 }
-$("homeMic").addEventListener("click",startListening);
-$("fullMic").addEventListener("click",startListening);
-$("coreButton").addEventListener("click",startListening);
+$("send").addEventListener("click",send);
+$("prompt").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+$("prompt").addEventListener("input",()=>{$("prompt").style.height="42px";$("prompt").style.height=Math.min($("prompt").scrollHeight,100)+"px"});
 
-/* Local notes */
-$("notesInput").value=localStorage.getItem("jarvis_notes")||"";
-$("saveNotes").addEventListener("click",()=>{
-  localStorage.setItem("jarvis_notes",$("notesInput").value);
-  $("notesStatus").textContent="Saved locally.";
-  toast("Notes saved on this device.");
-});
-$("clearNotes").addEventListener("click",()=>{
-  if(!confirm("Clear all saved notes on this device?"))return;
-  $("notesInput").value="";localStorage.removeItem("jarvis_notes");
-  $("notesStatus").textContent="Cleared.";
-});
-
-/* Arithmetic parser: no eval or Function. */
-function calculate(expression){
-  const s=expression.replace(/\s+/g,"");
-  if(!s||!/^[0-9+\-*/().]+$/.test(s))throw Error("Invalid expression");
-  let i=0;
-  function expressionPart(){
-    let v=term();
-    while(s[i]==="+"||s[i]==="-"){
-      const op=s[i++],r=term();v=op==="+"?v+r:v-r;
-    }
-    return v;
-  }
-  function term(){
-    let v=factor();
-    while(s[i]==="*"||s[i]==="/"){
-      const op=s[i++],r=factor();
-      if(op==="/"&&r===0)throw Error("Cannot divide by zero");
-      v=op==="*"?v*r:v/r;
-    }
-    return v;
-  }
-  function factor(){
-    if(s[i]==="+"){i++;return factor()}
-    if(s[i]==="-"){i++;return -factor()}
-    if(s[i]==="("){
-      i++;const v=expressionPart();
-      if(s[i]!==")")throw Error("Missing closing parenthesis");
-      i++;return v;
-    }
-    const start=i;
-    while(/[0-9.]/.test(s[i]||"")&&i<s.length)i++;
-    if(start===i)throw Error("Expected a number");
-    const raw=s.slice(start,i);
-    if((raw.match(/\./g)||[]).length>1)throw Error("Invalid number");
-    return Number(raw);
-  }
-  const result=expressionPart();
-  if(i!==s.length||!Number.isFinite(result))throw Error("Invalid calculation");
-  return Number(result.toPrecision(12)).toString();
+async function testAI(){
+ $("aiState").textContent="TESTING";showBackend("Testing the configured Supabase Edge Function...");
+ try{
+  const answer=await requestAI([{role:"user",content:"Reply with exactly: JARVIS connection successful."}]);
+  $("aiState").textContent="ONLINE";showBackend("SUCCESS — backend returned: "+answer.slice(0,180));toast("AI backend responded successfully.");
+ }catch(e){
+  $("aiState").textContent="ERROR";
+  const msg=e.name==="AbortError"?"Request timed out.":e.message;
+  showBackend("FAILED — "+msg);toast("Connection test failed. Read System details.");
+ }
 }
-let calcExpr="";
-$("calcGrid").addEventListener("click",e=>{
-  const btn=e.target.closest("[data-key]");if(!btn)return;
-  const k=btn.dataset.key;
-  if(k==="AC")calcExpr="";
-  else if(k==="DEL")calcExpr=calcExpr.slice(0,-1);
-  else if(k==="="){
-    try{calcExpr=calculate(calcExpr)}catch(err){$("calcDisplay").value=err.message;return}
-  }else if(calcExpr.length<80)calcExpr+=k;
-  $("calcDisplay").value=calcExpr||"0";
-});
-
-/* Camera preview. No video frame is uploaded. */
-function stopCamera(){
-  if(state.camera){state.camera.getTracks().forEach(t=>t.stop());state.camera=null}
-  const video=$("scannerView").querySelector("video");if(video)video.remove();
-  const overlay=$("scannerView").querySelector(".scanner-overlay");if(overlay)overlay.remove();
-  $("scannerPlaceholder").style.display="block";
-  $("scannerPlaceholder").textContent="CAMERA OFFLINE\n\nActivate the camera to begin a local visual scan.";
-  $("scanResult").textContent="Scanner stopped.";
-}
-$("startCamera").addEventListener("click",async()=>{
-  if(!navigator.mediaDevices?.getUserMedia){toast("Camera access is unavailable. Use HTTPS in a supported browser.");return}
-  try{
-    stopCamera();
-    state.camera=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:false});
-    const placeholder=$("scannerPlaceholder");placeholder.style.display="none";
-    const video=document.createElement("video");
-    video.autoplay=true;video.playsInline=true;video.muted=true;video.srcObject=state.camera;
-    $("scannerView").appendChild(video);
-    const overlay=document.createElement("div");overlay.className="scanner-overlay";
-    $("scannerView").appendChild(overlay);
-    $("scanResult").textContent="Camera active. Video stays in your browser; no facial identity is being determined.";
-    toast("Camera activated.");
-  }catch(e){$("scanResult").textContent="Camera could not start: "+e.message;toast("Camera permission denied or unavailable.")}
-});
-$("stopCamera").addEventListener("click",stopCamera);
-$("scanButton").addEventListener("click",()=>{
-  if(!state.camera){toast("Activate the camera first.");return}
-  $("scanResult").textContent="Visual scan animation running. This is only a UI effect, not real face recognition.";
-  $("coreStatus").textContent="OPTICAL SCAN RUNNING";
-  setTimeout(()=>{$("coreStatus").textContent="SYSTEM STANDBY";$("scanResult").textContent="Visual scan animation complete. No identity or health analysis was performed."},2800);
-});
-
+["testAI","testAI2","testAI3"].forEach(id=>$(id).addEventListener("click",testAI));
 $("clearChat").addEventListener("click",()=>{
-  state.conversation=[];
-  clearWelcome($("homeMessages"));clearWelcome($("fullMessages"));
-  if("speechSynthesis"in window)speechSynthesis.cancel();
-  toast("Conversation cleared from this page.");
+ if(!confirm("Clear this conversation?"))return;
+ state.history=[];$("messages").innerHTML='<div class="welcome"><b>✳</b><br>All systems standing by.<br>What can I help you with?</div>';
+ if("speechSynthesis"in window)speechSynthesis.cancel();toast("Conversation cleared.");
 });
-$("settingsChat").addEventListener("click",()=>go("chat"));
-window.addEventListener("beforeunload",stopCamera);
+$("stopVoice").addEventListener("click",()=>{if("speechSynthesis"in window)speechSynthesis.cancel();toast("Speech stopped.")});
+$("toggleVoice").addEventListener("click",()=>{state.voice=!state.voice;toast("Spoken replies "+(state.voice?"enabled":"muted"))});
+$("previewVoice").addEventListener("click",()=>speak("JARVIS online. All systems standing by."));
 
-updateClock();
-$("backendMini").textContent="READY";
-$("voiceMini").textContent=("SpeechRecognition"in window||"webkitSpeechRecognition"in window)?"STANDBY":"UNAVAILABLE";
+function listen(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){toast("Voice input is not supported by this browser. Try Chrome.");return}
+ if(state.recognition){try{state.recognition.stop()}catch{}state.recognition=null;return}
+ const rec=new SR();state.recognition=rec;rec.lang="en-GB";rec.interimResults=false;rec.continuous=false;
+ $("core").classList.add("listening");$("voiceState").textContent="LISTENING";status("LISTENING");
+ rec.onresult=e=>{$("prompt").value=e.results[0][0].transcript};
+ rec.onerror=e=>toast("Microphone error: "+e.error);
+ rec.onend=()=>{$("core").classList.remove("listening");$("voiceState").textContent="READY";state.recognition=null;status("STANDBY");if($("prompt").value.trim())send()};
+ try{rec.start()}catch(e){state.recognition=null;toast("Could not start microphone: "+e.message)}
+}
+$("mic").addEventListener("click",listen);
+
+$("noteText").value=localStorage.getItem("jarvis_notes")||"";
+$("saveNote").addEventListener("click",()=>{
+ try{localStorage.setItem("jarvis_notes",$("noteText").value);$("noteStatus").textContent="Saved on this device.";toast("Notes saved.");}
+ catch(e){toast("Could not save notes in browser storage.")}
+});
+$("deleteNote").addEventListener("click",()=>{
+ if(!confirm("Delete your saved notes?"))return;
+ $("noteText").value="";localStorage.removeItem("jarvis_notes");$("noteStatus").textContent="Notes cleared.";
+});
+
+function evaluateMath(s){
+ s=s.replace(/\s/g,"");
+ if(!s||s.length>80||!/^[0-9.+*/()\-]+$/.test(s))throw Error("Invalid expression");
+ let i=0;
+ function expr(){let n=term();while(s[i]==="+"||s[i]==="-"){const op=s[i++],r=term();n=op==="+"?n+r:n-r}return n}
+ function term(){let n=factor();while(s[i]==="*"||s[i]==="/"){const op=s[i++],r=factor();if(op==="/"&&r===0)throw Error("Cannot divide by zero");n=op==="*"?n*r:n/r}return n}
+ function factor(){
+  if(s[i]==="-"){i++;return-factor()}
+  if(s[i]==="+"){i++;return factor()}
+  if(s[i]==="("){i++;const n=expr();if(s[i++]!==")")throw Error("Missing )");return n}
+  const start=i;while(i<s.length&&/[0-9.]/.test(s[i]))i++;
+  if(start===i)throw Error("Invalid expression");
+  const part=s.slice(start,i);if((part.match(/\./g)||[]).length>1)throw Error("Invalid number");
+  return Number(part);
+ }
+ const result=expr();if(i!==s.length||!Number.isFinite(result))throw Error("Invalid calculation");
+ return Number(result.toPrecision(12)).toString();
+}
+$("calc").addEventListener("click",e=>{
+ const b=e.target.closest("[data-k]");if(!b)return;
+ const k=b.dataset.k;
+ if(k==="AC")state.calc="";
+ else if(k==="DEL")state.calc=state.calc.slice(0,-1);
+ else if(k==="="){try{state.calc=evaluateMath(state.calc)}catch(err){$("calcDisplay").value=err.message;return}}
+ else if(state.calc.length<80)state.calc+=k;
+ $("calcDisplay").value=state.calc||"0";
+});
+
+function stopCamera(){
+ if(state.stream){state.stream.getTracks().forEach(t=>t.stop());state.stream=null}
+ $("camera").querySelector("video")?.remove();$("camera").querySelector(".frame")?.remove();
+ $("cameraPlaceholder").style.display="block";$("scanStatus").textContent="Camera stopped.";
+}
+$("cameraOn").addEventListener("click",async()=>{
+ if(!navigator.mediaDevices?.getUserMedia){toast("Camera requires HTTPS and a supported browser.");return}
+ try{
+  stopCamera();
+  state.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:false});
+  $("cameraPlaceholder").style.display="none";
+  const v=document.createElement("video");v.autoplay=true;v.playsInline=true;v.muted=true;v.srcObject=state.stream;$("camera").append(v);
+  const frame=document.createElement("div");frame.className="frame";$("camera").append(frame);
+  $("scanStatus").textContent="Camera is active. Preview stays in this browser; no identity recognition is performed.";
+ }catch(e){$("scanStatus").textContent="Camera error: "+e.message;toast("Camera permission denied or unavailable.")}
+});
+$("cameraOff").addEventListener("click",stopCamera);
+window.addEventListener("pagehide",stopCamera);
 })();
 </script>
 </body>
